@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+#define MAX_NODES 20
+
+// Structure representing a router's routing table
+struct Router {
+    unsigned int distance[MAX_NODES];  // Distance to each node
+    unsigned int nextHop[MAX_NODES];   // Next hop towards each node
+} routingTable[MAX_NODES];
+
+int main() {
+    int nodeCount;
+    int costMatrix[MAX_NODES][MAX_NODES];
+    int updated;
+    
+    // Get the number of routers in the network
+    printf("Enter the number of nodes: ");
+    scanf("%d", &nodeCount);
+
+    // Get the cost matrix for the network
+    printf("\nEnter the cost matrix:\n");
+    for (int i = 0; i < nodeCount; i++) {
+        for (int j = 0; j < nodeCount; j++) {
+            scanf("%d", &costMatrix[i][j]);
+            if (i == j)
+                costMatrix[i][j] = 0;
+
+            // Initialize routing table
+            routingTable[i].distance[j] = costMatrix[i][j];
+            routingTable[i].nextHop[j] = j;
+        }
+    }
+
+    // Distance Vector Algorithm
+    do {
+        updated = 0;
+        for (int src = 0; src < nodeCount; src++) {
+            for (int dest = 0; dest < nodeCount; dest++) {
+                for (int via = 0; via < nodeCount; via++) {
+                    if (routingTable[src].distance[dest] > costMatrix[src][via] + routingTable[via].distance[dest]) {
+                        routingTable[src].distance[dest] = costMatrix[src][via] + routingTable[via].distance[dest];
+                        routingTable[src].nextHop[dest] = via;
+                        updated++;
+                    }
+                }
+            }
+        }
+    } while (updated != 0);
+
+    // Display routing tables
+    for (int i = 0; i < nodeCount; i++) {
+        printf("\nRouting table for router %d:\n", i + 1);
+        for (int j = 0; j < nodeCount; j++) {
+            printf("Destination: %d, Next Hop: %d, Distance: %d\n",
+                   j + 1,
+                   routingTable[i].nextHop[j] + 1,
+                   routingTable[i].distance[j]);
+        }
+    }
+
+    printf("\n");
+    return 0;
+}
